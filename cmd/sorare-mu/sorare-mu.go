@@ -14,7 +14,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	e := ioutil.WriteFile("./front/export.json", r, 0644)
+	e := ioutil.WriteFile("./export.json", r, 0644)
 	if e != nil {
 		fmt.Println(e)
 		return
