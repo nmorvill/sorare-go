@@ -1,6 +1,9 @@
 package sorare_api
 
-import "sort"
+import (
+	"sort"
+	"sync"
+)
 
 type ClubExport struct {
 	Abbreviation string       `json:"abbr"`
@@ -18,9 +21,15 @@ type GameExport struct {
 
 func GetCalendars() []ClubExport {
 	var ret []ClubExport
+	wg := sync.WaitGroup{}
 	for _, league := range getAllDomesticLeaguesSlugs() {
-		ret = append(ret, getAllClubsFromLeague(league)...)
+		wg.Add(1)
+		go func(league string) {
+			ret = append(ret, getAllClubsFromLeague(league)...)
+			wg.Done()
+		}(league)
 	}
+	wg.Wait()
 	sort.Slice(ret, func(i, j int) bool {
 		return (getMuStrengthOfClub(ret[i]) > getMuStrengthOfClub(ret[j]))
 	})
