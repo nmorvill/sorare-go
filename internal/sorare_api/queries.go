@@ -79,7 +79,7 @@ func getClubsOfLeague(league string) COMPS {
 						name
 						pictureUrl
 						slug
-						upcomingGames(first:10) {
+						upcomingGames(first:15) {
 							date
 							competition {
 								format
@@ -110,8 +110,19 @@ func getClubsOfLeague(league string) COMPS {
 }
 
 func getStartYearOfLeague(league string) int {
-	if league == "mlspa" {
-		return 2023
+	leagues := map[string]int{
+		"mlspa":                         2023,
+		"j1-league":                     2023,
+		"campeonato-brasileiro-serie-a": 2023,
+		"superliga-argentina-de-futbol": 2023,
+		"eliteserien":                   2023,
+		"k-league-1":                    2023,
+		"primera-division-cl":           2023,
+		"liga-pro-ec":                   2023,
+	}
+	value, is := leagues[league]
+	if is {
+		return value
 	} else {
 		return 2022
 	}

@@ -1,26 +1,34 @@
 package main
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"sorare-mu/internal/sorare_api"
+	"sorare-mu/web/pages"
 	"time"
 )
 
 func main() {
 	fmt.Println("Starting !")
 	start := time.Now()
-	r, err := json.Marshal(sorare_api.GetCalendars())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	e := ioutil.WriteFile("./export.json", r, 0644)
+	calendars := sorare_api.GetBestSequence()
+	out := t(calendars)
+	e := ioutil.WriteFile("./index.html", out.Bytes(), 0644)
 	if e != nil {
 		fmt.Println(e)
 		return
 	}
 	elapsed := time.Since(start)
 	fmt.Printf("Done in %s!", elapsed)
+}
+
+func t(clubs []sorare_api.ClubExport) bytes.Buffer {
+	t := pages.GetTemplate()
+	var out bytes.Buffer
+	err := t.Execute(&out, clubs)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return out
 }
