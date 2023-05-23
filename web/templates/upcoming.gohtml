@@ -27,7 +27,7 @@
     {{ else }}
         <div class="cell detailed" style="background-color:{{ .Color }}">
     {{ end }}
-        <img src="{{ .LogoURL }}"/>
+        <img src="{{ .LogoURL }}" title="{{ .OpponentName }}"/>
         {{ .OpponentRank }}
         {{ if .IsHome }}
             <div class="location home">H</div>

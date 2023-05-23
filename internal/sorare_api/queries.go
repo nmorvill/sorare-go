@@ -38,10 +38,12 @@ type TEAM struct {
 		HomeTeam struct {
 			Slug       string `json:"slug"`
 			PictureUrl string `json:"pictureUrl"`
+			Name       string `json:"name"`
 		} `json:"homeTeam"`
 		AwayTeam struct {
 			Slug       string `json:"slug"`
 			PictureUrl string `json:"pictureUrl"`
+			Name       string `json:"name"`
 		} `json:"awayTeam"`
 	} `json:"upcomingGames"`
 }
@@ -116,12 +118,14 @@ func getClubsOfLeague(league string) COMPS {
 								... on Club {
 									slug
 									pictureUrl
+									name
 								}
 							}
 							awayTeam {
 								... on Club {
 									slug
 									pictureUrl
+									name
 								}
 							}
 						}
@@ -147,6 +151,7 @@ func getStartYearOfLeague(league string) int {
 		"k-league-1":                    2023,
 		"primera-division-cl":           2023,
 		"liga-pro-ec":                   2023,
+		"chinese-super-league":          2023,
 	}
 	value, is := leagues[league]
 	if is {

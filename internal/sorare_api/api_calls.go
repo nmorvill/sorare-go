@@ -16,6 +16,7 @@ type ClubExport struct {
 }
 
 type GameExport struct {
+	OpponentName string `json:"oppName"`
 	OpponentRank int    `json:"oppRank"`
 	LogoURL      string `json:"logoURL"`
 	IsHome       bool   `json:"location"`
@@ -23,7 +24,7 @@ type GameExport struct {
 	Existing     bool   `json:"existing"`
 	IsInSequence bool   `json:"isInSequence"`
 	Gameweek     int    `json:"gameweek"`
-	Streak       [3]int `json:"streak"`
+	Streak       [5]int `json:"streak"`
 }
 
 func GetCalendars() []ClubExport {
@@ -64,11 +65,13 @@ func getAllClubsFromLeague(league string) []ClubExport {
 					g.OpponentRank = ranks[game.AwayTeam.Slug]
 					g.Streak = streaks[game.AwayTeam.Slug]
 					g.LogoURL = game.AwayTeam.PictureUrl
+					g.OpponentName = game.AwayTeam.Name
 				} else {
 					g.IsHome = false
 					g.OpponentRank = ranks[game.HomeTeam.Slug]
 					g.Streak = streaks[game.HomeTeam.Slug]
 					g.LogoURL = game.HomeTeam.PictureUrl
+					g.OpponentName = game.HomeTeam.Name
 				}
 				g.Color = utils.GetColorCodeOfRank(g.OpponentRank, c.NbTeams)
 				g.Existing = true
@@ -83,9 +86,9 @@ func getAllClubsFromLeague(league string) []ClubExport {
 	return ret
 }
 
-func getRanksAndStreaks(clubs COMPS, league string) (map[string]int, map[string][3]int) {
+func getRanksAndStreaks(clubs COMPS, league string) (map[string]int, map[string][5]int) {
 	var ranks map[string]int = make(map[string]int)
-	var streaks map[string][3]int = make(map[string][3]int)
+	var streaks map[string][5]int = make(map[string][5]int)
 	var westernConferenceRanks map[string]int
 	if league == "mlspa" {
 		westernConferenceRanks = footballapi.GetWesternConferenceRanking()
@@ -100,11 +103,11 @@ func getRanksAndStreaks(clubs COMPS, league string) (map[string]int, map[string]
 	return ranks, streaks
 }
 
-func getStreak(club TEAM) [3]int {
-	var streak [3]int
+func getStreak(club TEAM) [5]int {
+	var streak [5]int
 	i := 0
 	for _, game := range club.LastFiveGames {
-		if game.Status == "played" && i < 3 {
+		if game.Status == "played" {
 			var result int
 			if game.HomeGoals > game.AwayGoals {
 				result = 1
