@@ -29,7 +29,11 @@ func getCache[K interface{}](filename string) (K, error) {
 	if time.Now().Sub(infos.ModTime()).Seconds() > CACHE_DURATION {
 		return ret, errors.New("Cache too old")
 	}
-	return pick[K](filename), nil
+	ret, err = pick[K](filename)
+	if err != nil {
+		return ret, err
+	}
+	return ret, nil
 }
 
 func dump(filename string, data any) {
@@ -47,16 +51,16 @@ func dump(filename string, data any) {
 	f.Write(buf.Bytes())
 }
 
-func pick[K interface{}](filename string) K {
+func pick[K interface{}](filename string) (K, error) {
+	var ret K
 	f, err := os.ReadFile("ext/cache/" + filename + ".bin")
 	if err != nil {
-		log.Fatal("Couldn't open cache file " + err.Error())
+		return ret, err
 	}
 	dec := gob.NewDecoder(bytes.NewReader(f))
-	var ret K
 	err = dec.Decode(&ret)
 	if err != nil {
-		log.Fatal("Error decoding cache " + err.Error())
+		return ret, err
 	}
-	return ret
+	return ret, nil
 }
