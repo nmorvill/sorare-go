@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorare Matchups</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/stylesheet.css">
+    <script src="https://unpkg.com/htmx.org@1.9.2" integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+</head>
+<body>
+    <h1>Sorare Matchups Visualizer</h1>
+    <form hx-get="/calendars" hx-trigger="change, load" hx-target="#main" hx-swap="innerHTML" x-data="{ sequence : false }">
+        <div class="left">
+            <label>Number of games</label>
+            <input type="number" name="nbGames" value="5" min="1" max="10"/>
+        </div>
+        <div class="right">
+            <label>Order by</label>
+            <select name="mode" @change='sequence = $event.target.value == "Sequence" '>
+                <option value="Calendar">Whole Calendar</option>
+                <option value="Sequence">Best Sequence</option>
+            </select>
+        </div>
+        <div class="left">
+            <label>Minimum games</label>
+            <input type="number" name="minGames" value="3" min="1" max="10"/>
+        </div>
+        <div class="right">
+            <div id="sequence" x-show="sequence" >
+                <label>Games In Sequence</label>
+                <input type="number" name="sequence" value="3" min="1" max="10"/>
+            </div>
+        </div>
+        <div class="left">
+            <label>Show all gameweeks</label>
+            <input type="checkbox" name="allGameweeks"/>
+        </div>
+    </form>
+    <div id="main">
+    </div>
+
+    <footer>
+        <a href="https://twitter.com/noemorvillers">Made by Noé Morvillers - Report bugs on Twitter<img src="/assets/twitter.png"/></a>
+    </footer>
+</body>

@@ -14,30 +14,43 @@ type LOFGS struct {
 	} `json:"leaguesOpenForGameStats"`
 }
 
+type TEAM struct {
+	Code          string `json:"code"`
+	Name          string `json:"name"`
+	PictureUrl    string `json:"pictureUrl"`
+	Slug          string `json:"slug"`
+	LastFiveGames []struct {
+		Status    string `json:"status"`
+		HomeGoals int    `json:"homeGoals"`
+		AwayGoals int    `json:"awayGoals"`
+		HomeTeam  struct {
+			Slug string `json:"slug"`
+		} `json:"homeTeam"`
+		AwayTeam struct {
+			Slug string `json:"slug"`
+		} `json:"awayTeam"`
+	} `json:"lastFiveGames"`
+	UpcomingGames []struct {
+		Date        string `json:"date"`
+		Competition struct {
+			Format string `json:"format"`
+		} `json:"competition"`
+		HomeTeam struct {
+			Slug       string `json:"slug"`
+			PictureUrl string `json:"pictureUrl"`
+		} `json:"homeTeam"`
+		AwayTeam struct {
+			Slug       string `json:"slug"`
+			PictureUrl string `json:"pictureUrl"`
+		} `json:"awayTeam"`
+	} `json:"upcomingGames"`
+}
+
 type COMPS struct {
 	Competition struct {
 		Contestants []struct {
-			Rank int `json:"rank"`
-			Team struct {
-				Code          string `json:"code"`
-				Name          string `json:"name"`
-				PictureUrl    string `json:"pictureUrl"`
-				Slug          string `json:"slug"`
-				UpcomingGames []struct {
-					Date        string `json:"date"`
-					Competition struct {
-						Format string `json:"format"`
-					} `json:"competition"`
-					HomeTeam struct {
-						Slug       string `json:"slug"`
-						PictureUrl string `json:"pictureUrl"`
-					} `json:"homeTeam"`
-					AwayTeam struct {
-						Slug       string `json:"slug"`
-						PictureUrl string `json:"pictureUrl"`
-					} `json:"awayTeam"`
-				} `json:"upcomingGames"`
-			} `json:"team"`
+			Rank int  `json:"rank"`
+			Team TEAM `json:"team"`
 		} `json:"contestants"`
 	} `json:"competition"`
 }
@@ -79,6 +92,21 @@ func getClubsOfLeague(league string) COMPS {
 						name
 						pictureUrl
 						slug
+						lastFiveGames {
+							status
+							homeGoals
+							awayGoals
+							homeTeam {
+								... on Club {
+								slug
+								}
+							}
+							awayTeam {
+								... on Club {
+								slug
+								}
+							}
+						}
 						upcomingGames(first:15) {
 							date
 							competition {
