@@ -14,7 +14,7 @@
 </head>
 <body>
     <h1>Sorare Matchups Visualizer</h1>
-    <form hx-get="/calendars" hx-trigger="change, load" hx-target="#main" hx-swap="innerHTML" x-data="{ sequence : false }">
+    <form hx-get="/calendars" hx-trigger="change, load, keyup" hx-target="#main" hx-swap="innerHTML" x-data="{ sequence : false }">
         <div class="left">
             <label>Number of games</label>
             <input type="number" name="nbGames" value="5" min="1" max="10"/>
@@ -39,6 +39,10 @@
         <div class="left">
             <label>Show all gameweeks</label>
             <input type="checkbox" name="allGameweeks"/>
+        </div>
+        <div class="right">
+            <label>Search</label>
+            <input type="text" name="search"/>
         </div>
     </form>
     <div id="main">

@@ -93,7 +93,7 @@ form {
     justify-content: space-between;
 }
 
-input[type=number] {
+input[type=number], input[type=text] {
     width:30px;
     text-align: center;
 }

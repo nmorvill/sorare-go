@@ -1,13 +1,20 @@
 package sorare_api
 
 import (
+	"fmt"
 	"sorare-mu/internal/utils"
 	"sort"
+	"strings"
 	"time"
 )
 
-func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int, sequence int, allGameweeks bool) []ClubExport {
+func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int, sequence int, allGameweeks bool, search string) []ClubExport {
 	var ret []ClubExport
+	if len(search) > 0 {
+		results = filterSearch(results, search)
+	}
+	fmt.Println(results)
+
 	if allGameweeks {
 		ret = getGamesByGW(results, minGames, nbGames)
 	} else {
@@ -90,6 +97,17 @@ func getMuStrengthOfClub(club ClubExport) float32 {
 		}
 	}
 	return sum / count
+}
+
+func filterSearch(clubs []ClubExport, search string) []ClubExport {
+	var ret []ClubExport
+	search = strings.ToLower(search)
+	for _, club := range clubs {
+		if strings.Contains(strings.ToLower(club.Name), search) {
+			ret = append(ret, club)
+		}
+	}
+	return ret
 }
 
 func getBestSequence(club ClubExport, maxSequence int) (float32, int) {

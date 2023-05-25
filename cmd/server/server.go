@@ -15,7 +15,6 @@ import (
 )
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(cors.Default())
 
@@ -33,8 +32,9 @@ func main() {
 		minGames, _ := strconv.Atoi(c.DefaultQuery("minGames", "3"))
 		sequence, _ := strconv.Atoi(c.DefaultQuery("sequence", "3"))
 		allGameweeks := c.DefaultQuery("allGameweeks", "off") == "on"
+		search := c.DefaultQuery("search", "")
 
-		res := getResult(mode, nbGames, minGames, sequence, allGameweeks)
+		res := getResult(mode, nbGames, minGames, sequence, allGameweeks, search)
 
 		c.Data(http.StatusOK, "text/html; charset=utf-8", res.Bytes())
 	})
@@ -42,12 +42,12 @@ func main() {
 	r.Run()
 }
 
-func getResult(mode string, nbGames int, minGames int, sequence int, allGameweeks bool) bytes.Buffer {
+func getResult(mode string, nbGames int, minGames int, sequence int, allGameweeks bool, search string) bytes.Buffer {
 	fmt.Println("Starting !")
 	start := time.Now()
 
 	calendars := cache.GetData("calendars", sorare_api.GetCalendars)
-	calendars = sorare_api.ArrangeResults(calendars, mode, nbGames, minGames, sequence, allGameweeks)
+	calendars = sorare_api.ArrangeResults(calendars, mode, nbGames, minGames, sequence, allGameweeks, search)
 
 	ret := getTemplate(calendars)
 	elapsed := time.Since(start)
