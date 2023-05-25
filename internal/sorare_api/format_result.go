@@ -1,7 +1,6 @@
 package sorare_api
 
 import (
-	"fmt"
 	"sorare-mu/internal/utils"
 	"sort"
 	"strings"
@@ -13,7 +12,6 @@ func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int
 	if len(search) > 0 {
 		results = filterSearch(results, search)
 	}
-	fmt.Println(results)
 
 	if allGameweeks {
 		ret = getGamesByGW(results, minGames, nbGames)
