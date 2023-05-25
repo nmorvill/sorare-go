@@ -5,8 +5,16 @@ import (
 	"html/template"
 )
 
-func GetTemplate() *template.Template {
-	t, err := template.ParseFiles("./web/templates/upcoming.gohtml")
+func GetTableTemplate() *template.Template {
+	t, err := template.ParseFiles("./web/templates/upcomingTable.gohtml")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return t
+}
+
+func GetGraphTemplate() *template.Template {
+	t, err := template.ParseFiles("./web/templates/upcomingGraph.gohtml")
 	if err != nil {
 		fmt.Println(err.Error())
 	}

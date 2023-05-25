@@ -6,27 +6,6 @@ import (
 	"sync"
 )
 
-type ClubExport struct {
-	Abbreviation string       `json:"abbr"`
-	Name         string       `json:"name"`
-	LogoURL      string       `json:"logoURL"`
-	NbTeams      int          `json:"nbTeams"`
-	Games        []GameExport `json:"games"`
-	Rank         int          `json:"rank"`
-}
-
-type GameExport struct {
-	OpponentName string `json:"oppName"`
-	OpponentRank int    `json:"oppRank"`
-	LogoURL      string `json:"logoURL"`
-	IsHome       bool   `json:"location"`
-	Color        string `json:"color"`
-	Existing     bool   `json:"existing"`
-	IsInSequence bool   `json:"isInSequence"`
-	Gameweek     int    `json:"gameweek"`
-	Streak       [5]int `json:"streak"`
-}
-
 func GetCalendars() []ClubExport {
 	var ret []ClubExport
 	wg := sync.WaitGroup{}
@@ -56,6 +35,7 @@ func getAllClubsFromLeague(league string) []ClubExport {
 		c.NbTeams = nbTeams
 		c.LogoURL = club.Team.PictureUrl
 		c.Rank = ranks[club.Team.Slug]
+		c.Color = getColor(club.Team)
 
 		for _, game := range club.Team.UpcomingGames {
 			if game.Competition.Format == "DOMESTIC_LEAGUE" {
@@ -84,6 +64,16 @@ func getAllClubsFromLeague(league string) []ClubExport {
 		ret = append(ret, c)
 	}
 	return ret
+}
+
+func getColor(club TEAM) string {
+	if len(club.CustomBanner.Color) > 0 && club.CustomBanner.Color != "#ffffff" {
+		return club.CustomBanner.Color
+	} else if len(club.CustomBanner.SecondaryColor) > 0 {
+		return club.CustomBanner.SecondaryColor
+	} else {
+		return "#dddddd"
+	}
 }
 
 func getRanksAndStreaks(clubs COMPS, league string) (map[string]int, map[string][5]int) {

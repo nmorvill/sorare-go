@@ -1,0 +1,11 @@
+<svg width="{{ .GraphWidth }}" height="{{ .GraphHeight }}" viewBox="0 0 {{ .GraphWidth }} {{ .GraphHeight }}" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin:auto; display:block; margin-top:50px">
+    <line x1="0" y1="{{ .GraphHeight }}" x2="{{ .GraphWidth }}" y2="{{ .GraphHeight }}" stroke="black"/>
+    <line x1="0" y1="0" x2="0" y2="{{ .GraphHeight }}" stroke="black"/>
+    {{ range .Clubs }}
+        <circle cx="{{ .AverageOppRanks }}" cy="{{ .Rank }}" r="10" fill="{{ .Color }}" stroke="black">
+             <title>{{ .Name }}</title>
+        </circle>
+    {{ end }}
+    <text x="20" y="20" fill="black" >Team Rank</text>
+    <text x="800" y="580" fill="black">Average Opponent Rank</text>
+</svg>

@@ -7,6 +7,41 @@ import (
 	"time"
 )
 
+type ClubExport struct {
+	Abbreviation string       `json:"abbr"`
+	Name         string       `json:"name"`
+	LogoURL      string       `json:"logoURL"`
+	NbTeams      int          `json:"nbTeams"`
+	Games        []GameExport `json:"games"`
+	Rank         int          `json:"rank"`
+	Color        string       `json:"color"`
+}
+
+type GameExport struct {
+	OpponentName string `json:"oppName"`
+	OpponentRank int    `json:"oppRank"`
+	LogoURL      string `json:"logoURL"`
+	IsHome       bool   `json:"location"`
+	Color        string `json:"color"`
+	Existing     bool   `json:"existing"`
+	IsInSequence bool   `json:"isInSequence"`
+	Gameweek     int    `json:"gameweek"`
+	Streak       [5]int `json:"streak"`
+}
+
+type GraphExport struct {
+	Clubs       []GraphClubExport `json:"clubs"`
+	GraphWidth  int               `json:"graphWidth"`
+	GraphHeight int               `json:"graphHeight"`
+}
+
+type GraphClubExport struct {
+	Name            string `json:"name"`
+	Rank            int    `json:"rank"`
+	AverageOppRanks int    `json:"avgOppRanks"`
+	Color           string `json:"color"`
+}
+
 func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int, sequence int, allGameweeks bool, search string) []ClubExport {
 	var ret []ClubExport
 	if len(search) > 0 {
@@ -24,6 +59,18 @@ func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int
 	} else if mode == "Sequence" {
 		ret = sortByBestSequence(ret, sequence)
 	}
+	return ret
+}
+
+func ArrangeGraph(results []ClubExport, nbGames int, minGames int, search string, graphWidth int, graphHeight int) []GraphClubExport {
+	var ret []GraphClubExport
+	if len(search) > 0 {
+		results = filterSearch(results, search)
+	}
+
+	results = getGamesByOrder(results, minGames, nbGames)
+	ret = getGraphPoints(results, graphWidth, graphHeight)
+
 	return ret
 }
 
@@ -120,4 +167,19 @@ func getBestSequence(club ClubExport, maxSequence int) (float32, int) {
 		//fmt.Println(err.Error())
 	}
 	return float32(ret) / float32(club.NbTeams), start
+}
+
+func getGraphPoints(clubs []ClubExport, graphWidth int, graphHeight int) []GraphClubExport {
+	var ret []GraphClubExport
+	for _, club := range clubs {
+		var x int = int(getMuStrengthOfClub(club) * float32(graphWidth))
+		var rank float32 = float32(club.Rank) / float32(club.NbTeams)
+		var y int = int(float32(graphHeight) * rank)
+		if len(club.Color) == 0 {
+			club.Color = "white"
+		}
+
+		ret = append(ret, GraphClubExport{Name: club.Name, AverageOppRanks: x, Rank: y, Color: club.Color})
+	}
+	return ret
 }

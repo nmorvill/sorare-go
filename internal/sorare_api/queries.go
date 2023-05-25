@@ -15,10 +15,14 @@ type LOFGS struct {
 }
 
 type TEAM struct {
-	Code          string `json:"code"`
-	Name          string `json:"name"`
-	PictureUrl    string `json:"pictureUrl"`
-	Slug          string `json:"slug"`
+	Code         string `json:"code"`
+	Name         string `json:"name"`
+	PictureUrl   string `json:"pictureUrl"`
+	Slug         string `json:"slug"`
+	CustomBanner struct {
+		Color          string `json:"colorLeft"`
+		SecondaryColor string `json:"colorRight"`
+	} `json:"customBanner"`
 	LastFiveGames []struct {
 		Status    string `json:"status"`
 		HomeGoals int    `json:"homeGoals"`
@@ -94,6 +98,10 @@ func getClubsOfLeague(league string) COMPS {
 						name
 						pictureUrl
 						slug
+						customBanner {
+							colorLeft
+							colorRight
+						}
 						lastFiveGames {
 							status
 							homeGoals
