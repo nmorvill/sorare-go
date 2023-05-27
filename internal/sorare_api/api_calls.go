@@ -1,9 +1,20 @@
 package sorare_api
 
 import (
+	"fmt"
 	footballapi "sorare-mu/internal/football_api"
 	"sorare-mu/internal/utils"
 	"sync"
+)
+
+type Division int64
+
+const (
+	Champ   Division = 0
+	Chall   Division = 1
+	Asia    Division = 2
+	America Division = 3
+	Div2    Division = 4
 )
 
 func GetCalendars() []ClubExport {
@@ -23,9 +34,18 @@ func GetCalendars() []ClubExport {
 func getAllClubsFromLeague(league string) []ClubExport {
 	clubsFromLeague := getClubsOfLeague(league)
 	ranks, streaks := getRanksAndStreaks(clubsFromLeague, league)
+	divisions, colors := getDivisions(league)
+	division, exists := divisions[clubsFromLeague.Competition.DisplayName]
+	var color string
+	if !exists {
+		color = "#ffffff"
+		fmt.Println(clubsFromLeague.Competition.DisplayName)
+	} else {
+		color = colors[division]
+	}
 	nbTeams := len(clubsFromLeague.Competition.Contestants)
 	if league == "mlspa" {
-		nbTeams = 14
+		nbTeams = 15
 	}
 	var ret []ClubExport
 	for _, club := range clubsFromLeague.Competition.Contestants {
@@ -35,7 +55,8 @@ func getAllClubsFromLeague(league string) []ClubExport {
 		c.NbTeams = nbTeams
 		c.LogoURL = club.Team.PictureUrl
 		c.Rank = ranks[club.Team.Slug]
-		c.Color = getColor(club.Team)
+		c.Color = color
+		c.Slug = club.Team.Slug
 
 		for _, game := range club.Team.UpcomingGames {
 			if game.Competition.Format == "DOMESTIC_LEAGUE" {
@@ -64,16 +85,6 @@ func getAllClubsFromLeague(league string) []ClubExport {
 		ret = append(ret, c)
 	}
 	return ret
-}
-
-func getColor(club TEAM) string {
-	if len(club.CustomBanner.Color) > 0 && club.CustomBanner.Color != "#ffffff" {
-		return club.CustomBanner.Color
-	} else if len(club.CustomBanner.SecondaryColor) > 0 {
-		return club.CustomBanner.SecondaryColor
-	} else {
-		return "#dddddd"
-	}
 }
 
 func getRanksAndStreaks(clubs COMPS, league string) (map[string]int, map[string][5]int) {
@@ -129,4 +140,49 @@ func getAllDomesticLeaguesSlugs() []string {
 		}
 	}
 	return ret
+}
+
+func getDivisions(displayName string) (map[string]Division, map[Division]string) {
+	divisions := map[string]Division{
+		"French Ligue 1":                Champ,
+		"Bundesliga":                    Champ,
+		"Premier League":                Champ,
+		"Serie A":                       Champ,
+		"LaLiga Santander":              Champ,
+		"Super League":                  Chall,
+		"Jupiler Pro League":            Chall,
+		"Russian Premier League":        Chall,
+		"Primeira Liga":                 Chall,
+		"Premiership":                   Chall,
+		"Spor Toto Süper Lig":           Chall,
+		"Eredivisie":                    Chall,
+		"Austrian Bundesliga":           Chall,
+		"Superliga":                     Chall,
+		"SuperSport HNL":                Chall,
+		"Eliteserien":                   Chall,
+		"Major League Soccer":           America,
+		"Liga MX":                       America,
+		"Superliga Argentina de Fútbol": America,
+		"Primera A":                     America,
+		"Campeonato Brasileiro Série A": America,
+		"Primera División del Perú":     America,
+		"Primera División de Chile":     America,
+		"Liga Pro":                      America,
+		"Ligue 2":                       Div2,
+		"2. Bundesliga":                 Div2,
+		"Football League Championship":  Div2,
+		"LaLiga Smartbank":              Div2,
+		"Serie B":                       Div2,
+		"J1 League":                     Asia,
+		"K League 1":                    Asia,
+		"Chinese Super League":          Asia,
+	}
+	colors := map[Division]string{
+		Champ:   "#293C9B",
+		America: "#D73939",
+		Chall:   "#FDE617",
+		Div2:    "#22C545",
+		Asia:    "#8A5ED1",
+	}
+	return divisions, colors
 }

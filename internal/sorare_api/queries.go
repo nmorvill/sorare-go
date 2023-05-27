@@ -15,14 +15,10 @@ type LOFGS struct {
 }
 
 type TEAM struct {
-	Code         string `json:"code"`
-	Name         string `json:"name"`
-	PictureUrl   string `json:"pictureUrl"`
-	Slug         string `json:"slug"`
-	CustomBanner struct {
-		Color          string `json:"colorLeft"`
-		SecondaryColor string `json:"colorRight"`
-	} `json:"customBanner"`
+	Code          string `json:"code"`
+	Name          string `json:"name"`
+	PictureUrl    string `json:"pictureUrl"`
+	Slug          string `json:"slug"`
 	LastFiveGames []struct {
 		Status    string `json:"status"`
 		HomeGoals int    `json:"homeGoals"`
@@ -54,6 +50,7 @@ type TEAM struct {
 
 type COMPS struct {
 	Competition struct {
+		DisplayName string `json:"displayName"`
 		Contestants []struct {
 			Rank int  `json:"rank"`
 			Team TEAM `json:"team"`
@@ -90,6 +87,7 @@ func getClubsOfLeague(league string) COMPS {
 	q := graphql.NewRequest(`
 	query($slug: String!, $start: Int!) {
 		competition(slug:$slug) {
+			displayName
 			contestants(seasonStartYear:$start) {
 				rank
 				team {
@@ -98,10 +96,6 @@ func getClubsOfLeague(league string) COMPS {
 						name
 						pictureUrl
 						slug
-						customBanner {
-							colorLeft
-							colorRight
-						}
 						lastFiveGames {
 							status
 							homeGoals

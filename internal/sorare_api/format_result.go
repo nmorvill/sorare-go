@@ -9,12 +9,14 @@ import (
 
 type ClubExport struct {
 	Abbreviation string       `json:"abbr"`
+	Slug         string       `json:"string"`
 	Name         string       `json:"name"`
 	LogoURL      string       `json:"logoURL"`
 	NbTeams      int          `json:"nbTeams"`
 	Games        []GameExport `json:"games"`
 	Rank         int          `json:"rank"`
 	Color        string       `json:"color"`
+	Division     Division     `json:"division"`
 }
 
 type GameExport struct {
@@ -36,10 +38,10 @@ type GraphExport struct {
 }
 
 type GraphClubExport struct {
-	Name            string `json:"name"`
-	Rank            int    `json:"rank"`
-	AverageOppRanks int    `json:"avgOppRanks"`
-	Color           string `json:"color"`
+	X    int        `json:"x"`
+	Y    int        `json:"y"`
+	Club ClubExport `json:"club"`
+	Id   string     `json:"id"`
 }
 
 func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int, sequence int, allGameweeks bool, search string) []ClubExport {
@@ -179,7 +181,7 @@ func getGraphPoints(clubs []ClubExport, graphWidth int, graphHeight int) []Graph
 			club.Color = "white"
 		}
 
-		ret = append(ret, GraphClubExport{Name: club.Name, AverageOppRanks: x, Rank: y, Color: club.Color})
+		ret = append(ret, GraphClubExport{Club: club, X: x, Y: y, Id: utils.ClearString(club.Slug)})
 	}
 	return ret
 }

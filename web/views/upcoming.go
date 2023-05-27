@@ -20,3 +20,11 @@ func GetGraphTemplate() *template.Template {
 	}
 	return t
 }
+
+func GetDetailsTemplate() *template.Template {
+	t, err := template.ParseFiles("./web/templates/upcomingDetails.gohtml")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return t
+}
