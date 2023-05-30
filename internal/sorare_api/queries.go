@@ -9,8 +9,9 @@ import (
 
 type LOFGS struct {
 	LeaguesOpenForGameStats []struct {
-		Slug   string `json:"slug"`
-		Format string `json:"format"`
+		Slug        string `json:"slug"`
+		Format      string `json:"format"`
+		DisplayName string `json:"displayName"`
 	} `json:"leaguesOpenForGameStats"`
 }
 
@@ -76,6 +77,7 @@ func getAllLeagues() LOFGS {
 		{
 		  slug
 		  format
+		  displayName
 		}
 	  }
 	`

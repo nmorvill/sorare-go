@@ -20,15 +20,19 @@ const (
 func GetCalendars() []ClubExport {
 	var ret []ClubExport
 	wg := sync.WaitGroup{}
-	for _, league := range getAllDomesticLeaguesSlugs() {
+	for _, league := range getAllDomesticLeagues() {
 		wg.Add(1)
 		go func(league string) {
 			ret = append(ret, getAllClubsFromLeague(league)...)
 			wg.Done()
-		}(league)
+		}(league.Slug)
 	}
 	wg.Wait()
 	return ret
+}
+
+func GetLeagues() []LeagueExport {
+	return getAllDomesticLeagues()
 }
 
 func getAllClubsFromLeague(league string) []ClubExport {
@@ -57,6 +61,7 @@ func getAllClubsFromLeague(league string) []ClubExport {
 		c.Rank = ranks[club.Team.Slug]
 		c.Color = color
 		c.Slug = club.Team.Slug
+		c.League = league
 
 		for _, game := range club.Team.UpcomingGames {
 			if game.Competition.Format == "DOMESTIC_LEAGUE" {
@@ -131,12 +136,15 @@ func getStreak(club TEAM) [5]int {
 	return streak
 }
 
-func getAllDomesticLeaguesSlugs() []string {
+func getAllDomesticLeagues() []LeagueExport {
 	leagues := getAllLeagues()
-	var ret []string
+	var ret []LeagueExport
 	for _, league := range leagues.LeaguesOpenForGameStats {
 		if league.Format == "DOMESTIC_LEAGUE" {
-			ret = append(ret, league.Slug)
+			var l LeagueExport
+			l.DisplayName = league.DisplayName
+			l.Slug = league.Slug
+			ret = append(ret, l)
 		}
 	}
 	return ret

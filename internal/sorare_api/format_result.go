@@ -17,6 +17,12 @@ type ClubExport struct {
 	Rank         int          `json:"rank"`
 	Color        string       `json:"color"`
 	Division     Division     `json:"division"`
+	League       string       `json:"league"`
+}
+
+type LeagueExport struct {
+	Slug        string `json:"slug"`
+	DisplayName string `json:"displayName"`
 }
 
 type GameExport struct {
@@ -44,10 +50,12 @@ type GraphClubExport struct {
 	Id   string     `json:"id"`
 }
 
-func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int, sequence int, allGameweeks bool, search string) []ClubExport {
+func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int, sequence int, allGameweeks bool, search string, league string) []ClubExport {
 	var ret []ClubExport
 	if len(search) > 0 {
 		results = filterSearch(results, search)
+	} else if league != "all" {
+		results = filterLeague(results, league)
 	}
 
 	if allGameweeks {
@@ -64,10 +72,12 @@ func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int
 	return ret
 }
 
-func ArrangeGraph(results []ClubExport, nbGames int, minGames int, search string, graphWidth int, graphHeight int) []GraphClubExport {
+func ArrangeGraph(results []ClubExport, nbGames int, minGames int, search string, graphWidth int, graphHeight int, league string) []GraphClubExport {
 	var ret []GraphClubExport
 	if len(search) > 0 {
 		results = filterSearch(results, search)
+	} else if league != "all" {
+		results = filterLeague(results, league)
 	}
 
 	results = getGamesByOrder(results, minGames, nbGames)
@@ -151,6 +161,16 @@ func filterSearch(clubs []ClubExport, search string) []ClubExport {
 	search = strings.ToLower(search)
 	for _, club := range clubs {
 		if strings.Contains(strings.ToLower(club.Name), search) {
+			ret = append(ret, club)
+		}
+	}
+	return ret
+}
+
+func filterLeague(clubs []ClubExport, league string) []ClubExport {
+	var ret []ClubExport
+	for _, club := range clubs {
+		if club.League == league {
 			ret = append(ret, club)
 		}
 	}

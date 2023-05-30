@@ -21,8 +21,8 @@ func GetGraphTemplate() *template.Template {
 	return t
 }
 
-func GetDetailsTemplate() *template.Template {
-	t, err := template.ParseFiles("./web/templates/upcomingDetails.gohtml")
+func GetIndexTemplate() *template.Template {
+	t, err := template.ParseFiles("./web/templates/upcomingIndex.gohtml")
 	if err != nil {
 		fmt.Println(err.Error())
 	}

@@ -50,8 +50,18 @@
             <input type="radio" name="presentation" value="Graph" id="graph">
             <label for="graph">Graph</label>
         </div>
+        <div class="right">
+            <label>League</label>
+            <select name="league">
+                <option value="all">All Leagues</option>
+                {{ range . }}
+                    <option value="{{ .Slug }}">{{ .DisplayName }}</option>
+                {{ end }}
+            </select>
+        </div>
     </form>
-    <div id="main">
+    
+    <div id="main" style="margin-bottom:50px">
     </div>
 
     <footer>
