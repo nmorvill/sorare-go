@@ -54,7 +54,8 @@ func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int
 	var ret []ClubExport
 	if len(search) > 0 {
 		results = filterSearch(results, search)
-	} else if league != "all" {
+	}
+	if league != "all" {
 		results = filterLeague(results, league)
 	}
 
@@ -76,7 +77,8 @@ func ArrangeGraph(results []ClubExport, nbGames int, minGames int, search string
 	var ret []GraphClubExport
 	if len(search) > 0 {
 		results = filterSearch(results, search)
-	} else if league != "all" {
+	}
+	if league != "all" {
 		results = filterLeague(results, league)
 	}
 
