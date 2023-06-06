@@ -1,24 +1,29 @@
-{{ range . }}
-    {{ template "row" .}}
+{{ range .Clubs }}
+    <div class="row">
+        {{ template "row" .}}
+    </div>
+{{ end }}
+{{ if .HasNext }}
+<div class="row" hx-get="/{{ .URL }}&page={{ .Page }}" hx-trigger="revealed" hx-swap="afterend">
+    {{ template "row" .LastClub }}
+</div>
 {{ end }}
 
 {{ define "row" }}
-    <div class="row">
-        <div class="row-head">
-            <img src="{{ .LogoURL }}"/>
-            <div class="names">
-                <h3>{{ .Abbreviation }} - {{ .Rank }}</h3>
-                {{ .Name }}
-            </div>
+    <div class="row-head">
+        <img src="{{ .LogoURL }}"/>
+        <div class="names">
+            <h3>{{ .Abbreviation }} - {{ .Rank }}</h3>
+            {{ .Name }}
         </div>
-        {{ range .Games}}
-            {{ if .Existing }}
-                {{ template "cell" .}}
-            {{ else }}
-                    <div class="cell" style="background-color:#000000"></div>
-            {{ end }}
-        {{ end }}
     </div>
+    {{ range .Games}}
+        {{ if .Existing }}
+            {{ template "cell" .}}
+        {{ else }}
+            <div class="cell" style="background-color:#000000"></div>
+        {{ end }}
+    {{ end }}
 {{ end }}
 
 {{ define "cell" }}

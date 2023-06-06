@@ -28,17 +28,17 @@ func main() {
 
 	r.GET("/matchups", func(c *gin.Context) {
 		presentation := c.DefaultQuery("presentation", "Table")
-		mode := c.DefaultQuery("mode", "Calendar")
 		nbGames, _ := strconv.Atoi(c.DefaultQuery("nbGames", "5"))
-		minGames, _ := strconv.Atoi(c.DefaultQuery("minGames", "3"))
-		sequence, _ := strconv.Atoi(c.DefaultQuery("sequence", "3"))
+		minGames, _ := strconv.Atoi(c.DefaultQuery("minGames", "0"))
+		sequence, _ := strconv.Atoi(c.DefaultQuery("sequence", "0"))
 		allGameweeks := c.DefaultQuery("allGameweeks", "off") == "on"
 		league := c.DefaultQuery("league", "all")
 		search := c.DefaultQuery("search", "")
+		page, _ := strconv.Atoi(c.DefaultQuery("page", "0"))
 
 		var res bytes.Buffer
 		if presentation == "Table" {
-			res = getTableResult(mode, nbGames, minGames, sequence, allGameweeks, search, league)
+			res = getTableResult(nbGames, minGames, sequence, allGameweeks, search, league, c.Request.URL.String(), page)
 		} else {
 			res = getGraphResult(nbGames, minGames, search, league)
 		}
@@ -49,11 +49,11 @@ func main() {
 	r.Run()
 }
 
-func getTableResult(mode string, nbGames int, minGames int, sequence int, allGameweeks bool, search string, league string) bytes.Buffer {
+func getTableResult(nbGames int, minGames int, sequence int, allGameweeks bool, search string, league string, url string, page int) bytes.Buffer {
 	calendars := cache.GetData("calendars", sorare_api.GetCalendars)
-	calendars = sorare_api.ArrangeResults(calendars, mode, nbGames, minGames, sequence, allGameweeks, search, league)
+	export := sorare_api.ArrangeTable(calendars, nbGames, minGames, sequence, allGameweeks, search, league, url, page)
 
-	ret := getTableTemplate(calendars)
+	ret := getTableTemplate(export)
 	return ret
 }
 
@@ -63,10 +63,10 @@ func getGraphResult(nbGames int, minGames int, search string, league string) byt
 	return ret
 }
 
-func getTableTemplate(clubs []sorare_api.ClubExport) bytes.Buffer {
+func getTableTemplate(export sorare_api.TableExport) bytes.Buffer {
 	t := views.GetTableTemplate()
 	var out bytes.Buffer
-	err := t.Execute(&out, clubs)
+	err := t.Execute(&out, export)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

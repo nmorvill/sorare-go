@@ -1,11 +1,14 @@
 package sorare_api
 
 import (
+	"regexp"
 	"sorare-mu/internal/utils"
 	"sort"
 	"strings"
 	"time"
 )
+
+const RESULTS_PAGE = 50
 
 type ClubExport struct {
 	Abbreviation string       `json:"abbr"`
@@ -50,26 +53,45 @@ type GraphClubExport struct {
 	Id   string     `json:"id"`
 }
 
-func ArrangeResults(results []ClubExport, mode string, nbGames int, minGames int, sequence int, allGameweeks bool, search string, league string) []ClubExport {
-	var ret []ClubExport
+type TableExport struct {
+	Clubs    []ClubExport `json:"clubs"`
+	LastClub ClubExport   `json:"lastClub"`
+	URL      string       `json:"url"`
+	Page     int          `json:"page"`
+	HasNext  bool         `json:"hasNext"`
+}
+
+func ArrangeTable(results []ClubExport, nbGames int, minGames int, sequence int, allGameweeks bool, search string, league string, url string, page int) TableExport {
+	var res []ClubExport
 	if len(search) > 0 {
 		results = filterSearch(results, search)
 	}
-	if league != "all" {
+	if league != "all" && league != "" {
 		results = filterLeague(results, league)
 	}
 
 	if allGameweeks {
-		ret = getGamesByGW(results, minGames, nbGames)
+		res = getGamesByGW(results, minGames, nbGames)
 	} else {
-		ret = getGamesByOrder(results, minGames, nbGames)
+		res = getGamesByOrder(results, minGames, nbGames)
 	}
 
-	if mode == "Calendar" {
-		ret = sortByOverallCalendar(ret)
-	} else if mode == "Sequence" {
-		ret = sortByBestSequence(ret, sequence)
+	if sequence == 0 {
+		res = sortByOverallCalendar(res)
+	} else {
+		res = sortByBestSequence(res, sequence)
 	}
+
+	r1 := regexp.MustCompile(`page=[0-9]+`)
+	start, end := page*RESULTS_PAGE, (page+1)*RESULTS_PAGE
+	hasNext := true
+	if end > len(res) {
+		end = len(res) - 1
+		hasNext = false
+	}
+	newURL := r1.ReplaceAllString(url, "")
+	ret := TableExport{Clubs: res[start:end], LastClub: res[end], URL: newURL[1 : len(newURL)-1], Page: page + 1, HasNext: hasNext}
+
 	return ret
 }
 
@@ -78,7 +100,7 @@ func ArrangeGraph(results []ClubExport, nbGames int, minGames int, search string
 	if len(search) > 0 {
 		results = filterSearch(results, search)
 	}
-	if league != "all" {
+	if league != "all" && league != "" {
 		results = filterLeague(results, league)
 	}
 

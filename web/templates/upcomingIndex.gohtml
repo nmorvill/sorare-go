@@ -13,52 +13,79 @@
     <script src="//unpkg.com/alpinejs" defer></script>
 </head>
 <body>
-    <h1>Sorare Matchups Visualizer</h1>
-    <form hx-get="/matchups" hx-trigger="change, load, keyup" hx-target="#main" hx-swap="innerHTML" x-data="{ sequence : false }">
-        <div class="left">
-            <label>Number of games</label>
-            <input type="number" name="nbGames" value="5" min="1" max="10"/>
+    <h1 style="text-align:center">Sorare Matchups Visualizer</h1>
+    <form hx-get="/matchups" hx-trigger="change, load, keyup delay:30ms, form-updated from:body" hx-target="#main" hx-swap="innerHTML" x-data="{ games : 5 }" x-init="$watch('games', () => { htmx.trigger('#gamesInput', 'change', {}) })">
+        
+        <div class="nb-games">
+            <button type="button" x-on:click="if(games < 9) games++">+</button>
+            <input type="text" name="nbGames" x-bind:value="games" id="gamesInput" readonly> games
+            <button type="button" x-on:click="if(games > 1) games--">-</button>
         </div>
-        <div class="right">
-            <label>Order by</label>
-            <select name="mode" @change='sequence = $event.target.value == "Sequence" '>
-                <option value="Calendar">Whole Calendar</option>
-                <option value="Sequence">Best Sequence</option>
-            </select>
+        
+
+        <div class="presentation-mode">
+            <input type="radio" name="presentation" value="Table" id="table" checked>
+            <label for="table"><svg viewBox="0 0 13 11" fill="none" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><rect width="3" height="3"/><rect y="4" width="3" height="3"/><rect y="8" width="3" height="3"/><rect x="5" width="3" height="3"/><rect x="5" y="4" width="3" height="3"/><rect x="5" y="8" width="3" height="3"/><rect x="10" width="3" height="3"/><rect x="10" y="4" width="3" height="3"/><rect x="10" y="8" width="3" height="3"/></g></svg></label>
+            <input type="radio" name="presentation" value="Graph" id="graph">
+            <label for="graph"><svg viewBox="0 0 13 11" xmlns="http://www.w3.org/2000/svg" fill="none"><g stroke="currentColor" stroke-width=".5"><path d="M.25 0v11"/><path d="M0 10.75h13"/></g><g fill="currentColor"><circle cx="4" cy="7" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="4" cy="2" r="1"/><circle cx="8" cy="9" r="1"/><circle cx="11" cy="1" r="1"/></g></svg></label>
         </div>
-        <div class="left">
-            <label>Minimum games</label>
-            <input type="number" name="minGames" value="3" min="1" max="10"/>
-        </div>
-        <div class="right">
-            <div id="sequence" x-show="sequence" >
-                <label>Games In Sequence</label>
-                <input type="number" name="sequence" value="3" min="1" max="10"/>
+
+        <div class="filters" x-data="{ sequence : 0, minGames : 1, league : '', showAll : false}">
+            <div x-show="sequence != 0" x-data="{ dropdown : false }">
+                <div class="btn">
+                    <span x-on:click="dropdown = true">Show best sequence : <span x-text="sequence"></span> games</span> <button type="button" x-on:click="sequence = 0">X</button>
+                </div>
+                <div x-show="dropdown" class="dropdown"  x-on:click.outside="dropdown = false">
+                    Number of games in sequence <input type="number" min="0" max="9" x-model="sequence" name="sequence"/>
+                </div>
+            </div>
+            <div x-show="minGames != 0" x-data="{ dropdown : false }">
+                <div class="btn">
+                    <span x-on:click="dropdown = true">Minimum number of games : <span x-text="minGames"></span></span> <button type="button" x-on:click="minGames = 0; $refs.inputMinGames.value = 0; document.body.dispatchEvent(new Event('form-updated'))">x</button>
+                </div>
+                <div x-show="dropdown" class="dropdown"  x-on:click.outside="dropdown = false">
+                    Minimum games : <input type="number" min="0" max="9" x-model="minGames" name="minGames" x-ref="inputMinGames"/>
+                </div>
+            </div>
+            <div x-show="showAll">
+                <div class="btn">
+                    Show all gameweeks<button type="button" x-on:click="showAll = false; $refs.showAll.checked = false; document.body.dispatchEvent(new Event('form-updated'))">x</button>
+                </div>
+                <input type="checkbox" name="allGameweeks" x-ref="showAll" hidden>
+            </div>
+            <div x-show="league != ''" x-data="{ dropdown : false }">
+                <div class="btn">
+                    <span x-on:click="dropdown = true" x-text="league.replaceAll('-', ' ')"></span> <button type="button" x-on:click="league = ''; $refs.selectLeague.value = ''; document.body.dispatchEvent(new Event('form-updated'))">x</button>
+                </div>
+                <div x-show="dropdown" class="dropdown"  x-on:click.outside="dropdown = false">
+                    <select name="league" x-model="league" x-ref="selectLeague">
+                        <option value="all">All</option>
+                        <option value="" hidden></option>
+                        {{ range . }}
+                            <option value="{{ .Slug }}">{{ .DisplayName }}</option>
+                        {{ end }}
+                    </select>
+                </div>
+            </div>
+            <div x-data="{ dropdown : false }">
+                <div class="btn"  x-on:click="dropdown = !dropdown">
+                    Add a filter <button type="button">+</button>
+                </div>
+                <div x-show="dropdown" x-on:click.outside="dropdown = false" class="dropdown">
+                    <ul>
+                        <li x-show="sequence == 0" x-on:click="sequence = 3; dropdown = false">Show best sequence</li>
+                        <li x-show="minGames == 0" x-on:click="minGames = 1; dropdown = false;">Minimum games</li>
+                        <li x-show="league == ''" x-on:click="league = 'all'; dropdown = false">League</li>
+                        <li x-show="!showAll" x-on:click="showAll = true; dropdown = false; $refs.showAll.checked = true, document.body.dispatchEvent(new Event('form-updated'))">Show all gameweeks</li>
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="left">
-            <label>Show all gameweeks</label>
-            <input type="checkbox" name="allGameweeks"/>
+        
+        <div class="search-bar">
+            <input type="text" placeholder="search..." name="search"/>
         </div>
-        <div class="right">
-            <label>League</label>
-            <select name="league">
-                <option value="all">All Leagues</option>
-                {{ range . }}
-                    <option value="{{ .Slug }}">{{ .DisplayName }}</option>
-                {{ end }}
-            </select>
-        </div>
-        <div class="left">
-            <input type="radio" name="presentation" value="Table" id="table" checked>
-            <label for="table">Table</label>
-            <input type="radio" name="presentation" value="Graph" id="graph">
-            <label for="graph">Graph</label>
-        </div>
-        <div class="right">
-            <label>Search</label>
-            <input type="text" name="search"/>
-        </div>
+
     </form>
     
     <div id="main" style="margin-bottom:50px">
