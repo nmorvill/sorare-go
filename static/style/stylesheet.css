@@ -15,17 +15,18 @@ body {
     width:100%;
 }
 
-img {
-    height:32px;
-    width:32px;
-}
-
 .row {
     display:flex;
     width:100%;
     justify-content: center;
     margin-top:15px;
     height:80px;
+}
+
+.row img {
+    height:32px;
+    width:32px;
+
 }
 
 .row-head {
@@ -209,4 +210,33 @@ form {
     font-size:1.45em;
     font-weight:800;
     margin-left:10px;
+}
+
+a {
+    color:inherit;
+    text-decoration:none;
+}
+
+footer {
+    position:fixed;
+    display:flex;
+    background-color: #84A59D;
+    bottom:0;
+    height:50px;
+    width:100%;
+    color:#F7EDE2;
+    justify-content: start;
+    align-items: center;
+    text-align: center;
+    padding-left: 30px;
+}
+
+footer img {
+    width:32px;
+    vertical-align: middle;
+    margin-right:10px;
+}
+
+footer span {
+    margin-left:50px;
 }
